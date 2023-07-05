@@ -12,8 +12,8 @@ struct Rgb {
 fn main() -> std::io::Result<()> {
     let data = read_csv("elevation_data.csv").expect("Unable to read CSV");
     let (min, max) = min_max(&data);
-    let gradient = create_gradient(); // No arguments are passed here
-    print_heatmap(&data, min, max, &gradient) // Pass min and max as arguments
+    let gradient = create_gradient();
+    print_heatmap(&data, min, max, &gradient)
 }
 
 fn read_csv(path: &str) -> Result<Vec<Vec<u8>>, Box<dyn Error>> {
@@ -45,7 +45,6 @@ fn min_max(data: &[Vec<u8>]) -> (u8, u8) {
 
 fn create_gradient() -> Vec<Rgb> {
     let mut gradient = Vec::new();
-
     for value in 0..=255 {
         gradient.push(Rgb {
             red: value,
@@ -53,7 +52,6 @@ fn create_gradient() -> Vec<Rgb> {
             blue: value,
         });
     }
-
     gradient
 }
 
@@ -61,12 +59,13 @@ fn print_heatmap(data: &[Vec<u8>], min: u8, max: u8, gradient: &[Rgb]) -> std::i
     let stdout = stdout();
     let mut handle = stdout.lock();
     let range = (max - min) as f32;
-
     for row in data {
         for &value in row {
-            let ratio = (value - min) as f32 / range; // Compute ratio within 0 to 1
-            let scaled_value = (ratio * 255.0).round() as u8; // Scale to 0..255
-
+            // Compute ratio within 0 to 1
+            let ratio = (value - min) as f32 / range; 
+            // Scale to 0..255
+            let scaled_value = (ratio * 255.0).round() as u8; 
+            //Get the right color for the relative elevation
             let color = &gradient[scaled_value as usize];
             write!(
                 handle,
@@ -76,6 +75,5 @@ fn print_heatmap(data: &[Vec<u8>], min: u8, max: u8, gradient: &[Rgb]) -> std::i
         }
         writeln!(handle)?;
     }
-
     Ok(())
 }
